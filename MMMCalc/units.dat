@@ -1,0 +1,216 @@
+#
+# ©2006 Markus Fritze
+#
+#
+
+###################################################################################################
+= SI base units <http://www.bipm.fr/en/si/base_units/>
+
+# They are all marked with an '@' to inform the parser that we can't resolve any further
+
+m						@			# Length (Meter)
+kg						@			# Mass (Kilogram)
+s						@			# Time (Seconds)
+A						@			# Electrical current (Ampere)
+K						@			# Temperature (Kelvin)
+mol						@			# Amount of substance (Mole)
+cd						@			# Luminous intensity (Candela)
+
+###################################################################################################
+= standard SI prefix names <http://www.bipm.fr/en/si/prefixes.html>
+
+# Prefixes are just multipliers for the factor
+
+yotta-					1e24
+zetta-					1e21
+exa-					1e18
+peta-					1e15
+tera-					1e12
+giga-					1e9
+mega-					1e6
+myria-					1e4
+kilo-					1e3
+hecto-					1e2
+deca-					1e1
+deka-					deca		# used in the US
+deci-					1e-1
+centi-					1e-2
+milli-					1e-3
+micro-					1e-6
+nano-					1e-9
+pico-					1e-12
+femto-					1e-15
+atto-					1e-18
+zepto-					1e-21
+yocto-					1e-24
+
+= SI prefix symbols
+
+Y-						yotta
+Z-						zetta
+E-						exa
+P-						peta
+T-						tera
+G-						giga
+M-						mega
+k-						kilo
+h-						hecto
+da-                     deca
+# none for 1e0
+d-						deci
+c-						centi
+m-						milli
+µ-						micro		# Unicode Name: MICRO SIGN
+u-						micro		# alternative for the MICRO SIGN
+n-						nano
+p-						pico
+f-						femto
+a-						atto
+z-						zepto
+y-						yocto
+
+
+###################################################################################################
+= named SI derived units <http://www.bipm.fr/en/si/derived_units/>
+
+# C and F are commented out, because they typically collide with Celius and Fahrenheit. If they are needed, change the temperature units!
+
+rad						m/m				# Plane angle (Radian)
+sr						m^2/m^2			# Solid angle (Steradian)
+Hz						s^-1			# Frequency (Hertz)
+N						kg m / s^2		# Force (Newton)
+Pa						N/m^2			# Pressure, Stress (Pascal)
+J						N m				# Energy, Work, Quantity of heat (Joule)
+W						J/s				# Power, Radiant Flux (Watt)
+#C						s A				# Electric charge, Quantity of electricity (Coulomb)
+V						W/A				# Electric potential difference, Electromotive force (Volt)
+#F						C/V				# Capacitance (Farad)
+Ω						V/A				# Electric resistance (Ohm) Unicode Name: OHM SIGN
+S						A/V				# Electric conductance (Siemens)
+Wb						V s				# Magnetic flux (Weber)
+T						Wb/m^2			# Magnetic flux density (Tesla)
+H						Wb/A			# Inductance
+#℃						K				# Celsius temperature (degree Celsius)
+lm						cd sr			# Luminous flux (Lumen)
+lx						lm/m^2			# Illuminance (Lux)
+Bq						s^-1			# Activity, referred to a radionuclide (Becquerel)
+Gy						m^2/s^2			# Absorbed dose, specific energy (imparted), kerma (Gray)
+Sv						J/kg			# Dose equivalent, ambient dose equivalent, directional dose equivalent, personal dose equivalent, organ equivalent dose (Sivert)
+
+###################################################################################################
+= non-SI constants accepted for use with the International System
+
+# constE and constPi are internal constants
+
+π						constPI			# as a constant, Unicode Name: GREEK SMALL LETTER PI
+PI						π
+
+###################################################################################################
+= non-SI units accepted for use with the International System
+
+min						60 s			# Minute
+h						60 min			# Hour
+d						24 hr			# Day
+
+°						(π/180) rad		# Degree (in an angle)
+'						(1/60)°			# Minute (in an angle)
+"						(1/60)'			# Second (in an angle)
+
+l						1e-3 m^3		# Litre
+L						l
+t						1e3 kg			# Tonne
+
+Np						1				# Neper
+B						0.5*log(Np)		# bel
+
+###################################################################################################
+= non-SI units currently accepted for use with the International System whose values in SI units are obtained experimentally
+
+eV						1.60217733e-19 J	# Electronvolt
+u						1.6605402e-27 kg	# Unified atomic mass unit
+ua						1.49597870691e11 m	# Astronomical unit
+
+###################################################################################################
+= other non-SI units currently accepted for use with the International System
+
+NM						1852 m			# Nautical mile (also nm, nmi, mpk and sm)
+knot					NM/h			# Knot
+a						1 dam			# Are
+ha						1 hm^2			# Hectare
+bar						1e5 Pa			# Bar
+Å						0.1 nm			# Ångström, Unicode Name: LATIN CAPITAL LETTER A WITH RING ABOVE
+b						100 fm^2		# Barn
+
+###################################################################################################
+###################################################################################################
+###################################################################################################
+= other units and conversions
+
+%						0.01				# per cent
+‰						0.1 * %				# permille, per thousand used, Unicode Name: PER MILLE SIGN
+‱						%*%					# permyriad, percent of a percent, Unicode Name: PER TEN THOUSAND SIGN
+
+# gravity 'g' collides with 'g' = gram
+gravity					9.80665 m/s^2		# gravity constant
+
+###################################################################################################
+###################################################################################################
+###################################################################################################
+# Temperature is a special case, it also conflicts with the letter C and F (Coulomb and Farad)
+= Temperature
+
+# internally we store everything in Kelvin, only for the display we convert to the necessary unit
+# the square brackets remove the unit and just use the factor. This allows us to force a value to a new unit
+
+C						([value] K + 273.15 K)
+℃						([value] K + 273.15 K)			# Unicode Name: DEGREE CELSIUS
+K>C						([value] - 273.15)				# no units, because C is our unit!
+K>℃						([value] - 273.15)				# no units, because C is our unit!
+
+F						([value] K + 459.67 K) * (5/9)
+℉						([value] K + 459.67 K) * (5/9)	# Unicode Name: DEGREE FAHRENHEIT
+K>F						([value] * 9/5 - 459.67)		# no units, because F is our unit!
+K>℉						([value] * 9/5 - 459.67)		# no units, because F is our unit!
+
+###################################################################################################
+= Pressure
+
+atm						101325 Pa			# standard atmosphere
+Torr					atm/760				# Torr
+psi						lb gravity / in^2	# Pound-force per square inch
+
+###################################################################################################
+= Mass
+
+g						0.001 kg			# kg is _really_ the SI unit
+lb						0.45359237 kg
+
+###################################################################################################
+= Distances
+
+in						2.5399978 cm
+ft						12 in
+yd						3 ft
+mi						5280 ft
+
+###################################################################################################
+= Volume
+
+gal						231 in^3
+
+###################################################################################################
+= Speed
+
+mph						mi/h
+kph						km/h
+
+###################################################################################################
+= Gas usage
+
+mpg						mi/gal
+# hint: l / 100km is the inverse, therefore you have to write 1/(n mpg) to compare them
+
+###################################################################################################
+= Energy
+
+cal						0.239 J
