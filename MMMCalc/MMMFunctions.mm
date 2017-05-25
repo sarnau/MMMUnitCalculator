@@ -10,7 +10,7 @@
 #import "MMMFunctions.h"
 
 
-#define ALLOW_ADD_UNIT_PLUS_NO_UNITS		0    // This allows adding/subtracting a value without a unit from a unit with a value
+#define ALLOW_ADD_UNIT_PLUS_NO_UNITS            0    // This allows adding/subtracting a value without a unit from a unit with a value
 
 @implementation MMMValue (InternalFunctions)
 
@@ -18,17 +18,17 @@
 /// value = value + n
 - (MMMValue*)add:(MMMValue*)theValue
 {
-    // for the + operation the units have to be identical
+	// for the + operation the units have to be identical
 	if(![self equalUnits:theValue])
 	{
 #if ALLOW_ADD_UNIT_PLUS_NO_UNITS
 		if(self.hasUnits || theValue.hasUnits)
 		{
 #endif
-			self.error = [NSString stringWithFormat:@"Term '%@' and '%@' can't be added", self, theValue];
-			return self;
+		self.error = [NSString stringWithFormat:@"Term '%@' and '%@' can't be added", self, theValue];
+		return self;
 #if ALLOW_ADD_UNIT_PLUS_NO_UNITS
-		}
+	}
 #endif
 	}
 
@@ -45,24 +45,24 @@
 /// value = value - n
 - (MMMValue*)sub:(MMMValue*)theValue
 {
-    // for the - operation the units have to be identical
-    if(![self equalUnits:theValue])
+	// for the - operation the units have to be identical
+	if(![self equalUnits:theValue])
 	{
 #if ALLOW_ADD_UNIT_PLUS_NO_UNITS
 		if(self.hasUnits || theValue.hasUnits)
 		{
 #endif
-			self.error = [NSString stringWithFormat:@"Term '%@' and '%@' can't be subtracted", self, theValue];
-			return self;
+		self.error = [NSString stringWithFormat:@"Term '%@' and '%@' can't be subtracted", self, theValue];
+		return self;
 #if ALLOW_ADD_UNIT_PLUS_NO_UNITS
-		}
+	}
 #endif
 	}
 
 	self.doubleValue = self.doubleValue - theValue.doubleValue;
 #if ALLOW_ADD_UNIT_PLUS_NO_UNITS
 	if(!self.hasUnits)
-        self.units = theValue.units;
+		self.units = theValue.units;
 #endif
 	[self mergeError:theValue];
 	return self;
@@ -74,10 +74,10 @@
 	self.doubleValue = self.doubleValue * theValue.doubleValue;
 
 	// m^2 * m^3 = m^5
-    for(NSString *key in theValue.units)
+	for(NSString *key in theValue.units)
 		self.units[key] = @(self.units[key].integerValue + theValue.units[key].integerValue);
-    
-    [self mergeError:theValue];
+
+	[self mergeError:theValue];
 	return self;
 }
 
@@ -92,7 +92,7 @@
 
 		// m^2 / m^3 = m^-1
 		for(NSString *key in theValue.units)
-            self.units[key] = @(self.units[key].integerValue - theValue.units[key].integerValue);
+			self.units[key] = @(self.units[key].integerValue - theValue.units[key].integerValue);
 	}
 	[self mergeError:theValue];
 	return self;
@@ -107,7 +107,7 @@
 		return self;
 	}
 
-	double		power = theValue.doubleValue;
+	double power = theValue.doubleValue;
 
 	// n^0 = 1
 	if(power == 0)
@@ -124,7 +124,7 @@
 	self.doubleValue = pow(self.doubleValue, power);
 
 	for(NSString *key in self.units)
-        self.units[key] = @((NSInteger)(self.units[key].doubleValue * power));
+		self.units[key] = @((NSInteger)(self.units[key].doubleValue * power));
 
 	[self mergeError:theValue];
 	return self;
@@ -363,7 +363,7 @@
 		return self;
 	}
 
-	self.doubleValue = pow(M_E, self.doubleValue);	// e^factor
+	self.doubleValue = pow(M_E, self.doubleValue);  // e^factor
 	return self;
 }
 
@@ -427,7 +427,7 @@
 /// compare two values for equal, returns 0, if not equal, 1 if equal
 - (MMMValue*)compareEqual:(MMMValue*)theValue
 {
-    self.doubleValue = [self equalUnits:theValue] && self.doubleValue == theValue.doubleValue;
+	self.doubleValue = [self equalUnits:theValue] && self.doubleValue == theValue.doubleValue;
 	[self removeUnits];
 	return self;
 }
@@ -437,7 +437,7 @@
 /// P = Calories / 50kcal + Fat / 12g - MIN(Fiber,4g) / 5g
 - (MMMValue*)wwp:(MMMValue*)theFat :(MMMValue*)theDietaryFiberGrams
 {
-	MMMValue	*theValue = [self div:[[MMMValue valueWithFactor:50.0] mul:[MMMValue valueWithString:@"kcal"]]];
+	MMMValue        *theValue = [self div:[[MMMValue valueWithFactor:50.0] mul:[MMMValue valueWithString:@"kcal"]]];
 	[theValue add:[theFat div:[MMMValue valueWithString:@"12 g"]]];
 	[theValue sub:[[theDietaryFiberGrams min:[MMMValue valueWithString:@"4 g"]] div:[MMMValue valueWithString:@"5 g"]]];
 	return [theValue ceil];
@@ -466,7 +466,7 @@
 /// min value out of n
 - (MMMValue*)min_A:(NSArray<MMMValue *> *)theValues
 {
-    MMMValue *theValue = self;
+	MMMValue *theValue = self;
 	for(MMMValue *aValue in theValues)
 		theValue = [theValue min:aValue];
 	return theValue;
@@ -475,7 +475,7 @@
 /// max value out of n
 - (MMMValue*)max_A:(NSArray<MMMValue *> *)theValues
 {
-    MMMValue *theValue = self;
+	MMMValue *theValue = self;
 	for(MMMValue *aValue in theValues)
 		theValue = [theValue max:aValue];
 	return theValue;

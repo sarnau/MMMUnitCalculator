@@ -42,7 +42,7 @@
 // value = value without the sign
 - (MMMValue*)abs;
 
-// round to largest integral value not greater than x 
+// round to largest integral value not greater than x
 - (MMMValue*)floor;
 
 // round to smallest integral value not less than x

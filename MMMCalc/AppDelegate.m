@@ -11,15 +11,15 @@
 #import "MMMValue.h"
 #import "MMMUnits.h"
 
-static void	CalcValue(NSString *term, NSString *unit, NSDictionary<NSString *, MMMValue *> *variables)
+static void     CalcValue(NSString *term, NSString *unit, NSDictionary<NSString *, MMMValue *> *variables)
 {
-    MMMValue	*mv = [MMMValue valueWithString:term variables:variables requestedUnit:unit];
-    if(mv.error)
-    {
-        NSLog(@"%@", mv.error);
-    } else {
-        NSLog(@"%@ => %@", term, mv.description);
-    }
+	MMMValue    *mv = [MMMValue valueWithString:term variables:variables requestedUnit:unit];
+	if(mv.error)
+	{
+		NSLog(@"%@", mv.error);
+	} else {
+		NSLog(@"%@ => %@", term, mv.description);
+	}
 }
 
 
@@ -27,10 +27,10 @@ static void	CalcValue(NSString *term, NSString *unit, NSDictionary<NSString *, M
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    CalcValue(@"1/(8 l/100km)",@"mpg", nil);
-    CalcValue(@"1/(20*mpg)",@"l/100km", nil);
-    
-    [NSApp terminate:self];
+	CalcValue(@"1/(8 l/100km)",@"mpg", nil);
+	CalcValue(@"1/(20*mpg)",@"l/100km", nil);
+
+	[NSApp terminate:self];
 }
 
 @end

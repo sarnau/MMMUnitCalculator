@@ -24,11 +24,11 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 
 @implementation MMMValue
 {
-    NSDictionary<NSString *, MMMValue *> *_variables;
-    NSString        *_requestedUnit; // != nil => wanted unit
-    NSString        *_error;        // error message, if != nil
-    NSUInteger		_errorLocation;	// location in _scanner
-    NSScanner		*_scanner;
+	NSDictionary<NSString *, MMMValue *> *_variables;
+	NSString        *_requestedUnit; // != nil => wanted unit
+	NSString        *_error;         // error message, if != nil
+	NSUInteger      _errorLocation;  // location in _scanner
+	NSScanner       *_scanner;
 }
 
 // ####################################################################################
@@ -37,10 +37,10 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 
 - (void)setUnits:(NSDictionary<NSString *, NSNumber *> *)theUnits
 {
-    // Forcing units to be an empty dictionary simplifies the -equalUnits:
-    // further down, because nil is equal to an empty dictionary (no unit)
-    if(!theUnits) theUnits = [@{} mutableCopy];
-    _units = [theUnits mutableCopy];
+	// Forcing units to be an empty dictionary simplifies the -equalUnits:
+	// further down, because nil is equal to an empty dictionary (no unit)
+	if(!theUnits) theUnits = [@{} mutableCopy];
+	_units = [theUnits mutableCopy];
 }
 
 /// Remove all units which have a power of 0, because they are no longer necessary
@@ -48,7 +48,7 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 {
 	for(NSString *theKey in [self.units copy])    // copy, because we modify during the loop
 	{
-		NSInteger	thePower = self.units[theKey].integerValue;
+		NSInteger thePower = self.units[theKey].integerValue;
 		if(thePower == 0)
 			[self.units removeObjectForKey:theKey];
 	}
@@ -100,7 +100,7 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 {
 	return [[MMMValue alloc] initWithFactor:theFactor units:nil];
 }
- 
+
 + (instancetype)valueWithFactor:(double)theFactor units:(NSDictionary*)theUnits
 {
 	return [[MMMValue alloc] initWithFactor:theFactor units:theUnits];
@@ -133,7 +133,7 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 {
 	if(_error == nil)
 		return nil;
-	NSString	*sstr = _scanner.string;
+	NSString        *sstr = _scanner.string;
 	if(sstr)
 		return [NSString stringWithFormat:@"%@ at position %lu: %@", _error, _errorLocation, [sstr substringFromIndex:_errorLocation]];
 	else
@@ -155,54 +155,54 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 /// return the value with the wanted unit (if set) merged together
 - (MMMValue*)value
 {
-    // no special unit wanted? => we have nothing special to do!
-    if(_requestedUnit == nil || _requestedUnit.length == 0)
-        return self;
-    
-    // copy our value, because we might have to modify it
-    MMMValue    *theValue = [MMMValue valueWithValue:self];
-    
-    // search for FROMUNIT>WANTEDUNIT, to see if we have a special back-conversion function
-    NSMutableString    *theConvertUnitStr = [theValue normalizedUnitString];
-    [theConvertUnitStr appendString:@">"];
-    [theConvertUnitStr appendString:_requestedUnit];
-    NSString    *theConvertUnitTerm = [MMMUnits.sharedUnits findUnit:theConvertUnitStr];
-    if(theConvertUnitTerm != nil)
-    {
-        // call that one! This is for a F=>C, etc. conversion, where a simple multiplication does not work
-        theValue = [MMMValue valueWithString:theConvertUnitTerm variables:@{@"value": theValue}];
-        
-    } else {
-        
-        // otherwise just divide our unit value by the wanted unit value
-        [theValue div:[MMMValue valueWithString:_requestedUnit]];
-        
-    }
-    
-    // we now multiply our wanted unit into the value
-    [theValue mul:[MMMValue valueWithFactor:1.0 units:@{_requestedUnit: @1}]];
-    
-    return theValue;
+	// no special unit wanted? => we have nothing special to do!
+	if(_requestedUnit == nil || _requestedUnit.length == 0)
+		return self;
+
+	// copy our value, because we might have to modify it
+	MMMValue    *theValue = [MMMValue valueWithValue:self];
+
+	// search for FROMUNIT>WANTEDUNIT, to see if we have a special back-conversion function
+	NSMutableString    *theConvertUnitStr = [theValue normalizedUnitString];
+	[theConvertUnitStr appendString:@">"];
+	[theConvertUnitStr appendString:_requestedUnit];
+	NSString    *theConvertUnitTerm = [MMMUnits.sharedUnits findUnit:theConvertUnitStr];
+	if(theConvertUnitTerm != nil)
+	{
+		// call that one! This is for a F=>C, etc. conversion, where a simple multiplication does not work
+		theValue = [MMMValue valueWithString:theConvertUnitTerm variables:@{@"value": theValue}];
+
+	} else {
+
+		// otherwise just divide our unit value by the wanted unit value
+		[theValue div:[MMMValue valueWithString:_requestedUnit]];
+
+	}
+
+	// we now multiply our wanted unit into the value
+	[theValue mul:[MMMValue valueWithFactor:1.0 units:@{_requestedUnit: @1}]];
+
+	return theValue;
 }
 
 // get a printable description of the unit
 - (NSMutableString*)normalizedUnitString
 {
-	NSMutableString	*theNumerator = [NSMutableString string];
-	NSMutableString	*theDenominator = [NSMutableString string];
+	NSMutableString *theNumerator = [NSMutableString string];
+	NSMutableString *theDenominator = [NSMutableString string];
 	for(NSString *theKey in self.units)
 	{
-		NSInteger	thePower = self.units[theKey].integerValue;
-		if(thePower == 0)	// unit ^ 0 == 1
+		NSInteger thePower = self.units[theKey].integerValue;
+		if(thePower == 0)       // unit ^ 0 == 1
 			continue;
-		if(thePower > 0)	// in the numerator
+		if(thePower > 0)        // in the numerator
 		{
 			if(theNumerator.length != 0)
 				[theNumerator appendString:@"*"];
 			[theNumerator appendString:theKey];
 			if(thePower > 1)
 				[theNumerator appendFormat:@"^%ld", thePower];
-		} else {		// in the theDenominator
+		} else {                // in the theDenominator
 			if(theDenominator.length != 0)
 				[theDenominator appendString:@"*"];
 			[theDenominator appendString:theKey];
@@ -222,7 +222,7 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 
 - (double)factor
 {
-    return self.value.doubleValue;
+	return self.value.doubleValue;
 }
 
 - (NSString*)unit
@@ -232,8 +232,8 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 
 - (NSString*)description
 {
-	NSString	*theResponse = [NSString stringWithFormat:@"%g", self.factor];
-	NSString	*theUnit = self.unit;
+	NSString        *theResponse = [NSString stringWithFormat:@"%g", self.factor];
+	NSString        *theUnit = self.unit;
 	if(theUnit.length)
 		theResponse = [theResponse stringByAppendingFormat:@" %@", theUnit];
 	return theResponse;
@@ -243,9 +243,9 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 - (MMMValue*)_calcVar
 {
 	// start with a default value: 1.0 without a unit
-	MMMValue	*theValue = [MMMValue valueWithFactor:1.0];
-	BOOL		foundValue = NO;	// we should keep track if we actually found a value and/or a unit, otherwise => error
-									// this avoids () being accepted as 1.0
+	MMMValue        *theValue = [MMMValue valueWithFactor:1.0];
+	BOOL foundValue = NO;                   // we should keep track if we actually found a value and/or a unit, otherwise => error
+	// this avoids () being accepted as 1.0
 
 	if([_scanner scanString:@"(" intoString:nil])
 	{
@@ -263,24 +263,24 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 		theValue = [self _calcTerm];
 		if(![_scanner scanString:@"]" intoString:nil])
 		{
-            self.error = @"Error: ']' missing";
+			self.error = @"Error: ']' missing";
 		}
 		[theValue removeUnits];
 		foundValue = YES;
 
 	} else {
 		// do we have a value? (can be followed by a unit!)
-		double		theNumber;
+		double theNumber;
 		if([_scanner scanDouble:&theNumber])
 		{
 			theValue = [MMMValue valueWithFactor:theNumber];
 			foundValue = YES;
 
 #if 0
-		// parsing hex numbers starting with $ bzw. $0x
+			// parsing hex numbers starting with $ bzw. $0x
 		} else if([_scanner scanString:@"$" intoString:nil])
 		{
-			unsigned long long	theHexNumber;
+			unsigned long long theHexNumber;
 			if([_scanner scanHexLongLong:&theHexNumber])
 			{
 				theValue = [MMMValue valueWithFactor:theHexNumber];
@@ -291,8 +291,8 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 		} else {
 
 			// first scan for functions and parameters
-			NSUInteger	theCurrentScanLocation = _scanner.scanLocation;
-			NSString	*theString;
+			NSUInteger theCurrentScanLocation = _scanner.scanLocation;
+			NSString        *theString;
 			while([_scanner scanCharactersFromSet:NSCharacterSet.alphanumericCharacterSet intoString:&theString])
 			{
 				if([theString isEqual:@"constE"])            // e (2.71828) as a constant
@@ -308,7 +308,7 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 				} else if(_variables[theString] != nil)      // variables supplied?
 				{
 					// do we have a parameter with that name?
-					theValue = _variables[theString];	// take that value
+					theValue = _variables[theString];       // take that value
 
 					theValue.used = YES;    // mark it as "used", so we don't force an implicit multiply
 
@@ -322,14 +322,14 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 					// search if we have a function (can not be followed by a unit!)
 					if([_scanner scanString:@"(" intoString:nil])
 					{
-                        MMMValue        *v[8];    // up to 8 parameters are allowed
-						NSMutableArray<MMMValue *>	*av = [NSMutableArray array];
-                        NSInteger       vCount = 0;
-                        memset(v, 0, sizeof(v));
-						NSMutableString	*theParameterStr = [NSMutableString string];
+						MMMValue        *v[8];// up to 8 parameters are allowed
+						NSMutableArray<MMMValue *>      *av = [NSMutableArray array];
+						NSInteger vCount = 0;
+						memset(v, 0, sizeof(v));
+						NSMutableString *theParameterStr = [NSMutableString string];
 						while(![_scanner scanString:@")" intoString:nil])
 						{
-							MMMValue	*vv = [self _calcTerm];
+							MMMValue        *vv = [self _calcTerm];
 							if(vCount < sizeof(v)/sizeof(v[0]))
 							{
 								if(vCount > 0)
@@ -338,16 +338,16 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 							}
 							[_scanner scanString:@"," intoString:nil];
 							if(vCount > 1)
-								[theParameterStr appendString:@":"];	// append a ':' for every parameter, but the first (which is self)
+								[theParameterStr appendString:@":"];    // append a ':' for every parameter, but the first (which is self)
 						}
 						// try to find the function in our class
-						SEL	selector = NSSelectorFromString([NSString stringWithFormat:@"%@%@", theString, theParameterStr]);
+						SEL selector = NSSelectorFromString([NSString stringWithFormat:@"%@%@", theString, theParameterStr]);
 						if(selector && [self respondsToSelector:selector])
 						{
 							theValue = ((objc_msgSendTyped7Objects)objc_msgSend)(v[0], selector, v[1], v[2], v[3], v[4], v[5], v[6], v[7]);
 						} else {
 							// search for a function that accepts an NSArray
-							SEL	selector = NSSelectorFromString([NSString stringWithFormat:@"%@_A:", theString]);
+							SEL selector = NSSelectorFromString([NSString stringWithFormat:@"%@_A:", theString]);
 							if(selector && [self respondsToSelector:selector])
 							{
 								theValue = ((objc_msgSendTypedNSArray)objc_msgSend)(v[0], selector, av);
@@ -366,7 +366,7 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 	}
 
 	// now we scan for possible units following the variable or term
-	NSString	*theString;
+	NSString        *theString;
 
 	// we scan with the units character set, instead of NSCharacterSet.letterCharacterSet, to get all legal unit characters
 	// (like degrees, micro, etc)
@@ -375,13 +375,13 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 		foundValue = YES;
 
 		// expect units
-		MMMValue	*theUnitValue = nil;
-		NSString	*theUnit = [MMMUnits.sharedUnits findUnit:theString];
+		MMMValue        *theUnitValue = nil;
+		NSString        *theUnit = [MMMUnits.sharedUnits findUnit:theString];
 		if(theUnit == nil)
 		{
 			self.error = [NSString stringWithFormat:@"Unit '%@' not fully defined", theString];
 		} else {
-			if([theUnit isEqual:theString])	// unit stayed the same => we found an SI-unit
+			if([theUnit isEqual:theString]) // unit stayed the same => we found an SI-unit
 			{
 				theUnitValue = [MMMValue valueWithFactor:1.0];
 				theUnitValue.units = [@{theString: @1} mutableCopy];
@@ -394,11 +394,11 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 			{
 				[theUnitValue pow:[self _calcVar]];
 			}
-			if(theValue.isUsed)		// if the value was consumed by the unit (via a formula) we don't multiply it in
-			{						// this is useful for the C => K and F => K conversions!
+			if(theValue.isUsed)             // if the value was consumed by the unit (via a formula) we don't multiply it in
+			{                                               // this is useful for the C => K and F => K conversions!
 				theValue = theUnitValue;
 			} else {
-				[theValue mul:theUnitValue];	// standard case: just multiply the factor and unit into our value
+				[theValue mul:theUnitValue];    // standard case: just multiply the factor and unit into our value
 			}
 		}
 	}
@@ -411,15 +411,15 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 
 - (MMMValue*)_calcSign
 {
-	BOOL	foundNegativeSign = NO;
+	BOOL foundNegativeSign = NO;
 	if([_scanner scanString:@"-" intoString:nil])
 	{
 		foundNegativeSign = YES;
 	} else if([_scanner scanString:@"+" intoString:nil])
 	{
-        // just ignore the '+'
+		// just ignore the '+'
 	}
-	MMMValue	*theValue = [self _calcVar];
+	MMMValue        *theValue = [self _calcVar];
 	if(foundNegativeSign)
 		theValue = [[MMMValue valueWithFactor:0.0] sub:theValue];
 	return theValue;
@@ -427,7 +427,7 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 
 - (MMMValue*)_calcPot
 {
-	MMMValue	*theValue = [self _calcSign];
+	MMMValue        *theValue = [self _calcSign];
 	do {
 		if([_scanner scanString:@"^" intoString:nil])
 		{
@@ -441,7 +441,7 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 
 - (MMMValue*)_calcMultiplication
 {
-	MMMValue	*theValue = [self _calcPot];
+	MMMValue        *theValue = [self _calcPot];
 	do {
 		if([_scanner scanString:@"*" intoString:nil])
 		{
@@ -458,7 +458,7 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 
 - (MMMValue*)_calcAdd
 {
-	MMMValue	*theValue = [self _calcMultiplication];
+	MMMValue        *theValue = [self _calcMultiplication];
 	do {
 		if([_scanner scanString:@"+" intoString:nil])
 		{
@@ -475,7 +475,7 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 
 - (MMMValue*)_calcCompare
 {
-	MMMValue	*theValue = [self _calcAdd];
+	MMMValue        *theValue = [self _calcAdd];
 	do {
 		if([_scanner scanString:@"=" intoString:nil])
 		{
@@ -502,7 +502,7 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 		_variables = theVariables;
 		_requestedUnit = theUnit;
 
-		MMMValue	*theValue = [self _calcTerm];
+		MMMValue        *theValue = [self _calcTerm];
 		if(theValue != nil)
 		{
 			self.doubleValue = theValue.doubleValue;
@@ -513,11 +513,11 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 		}
 
 		if(!_scanner.atEnd)
-        {
+		{
 			self.error = [NSString stringWithFormat:@"Error: end expected, but not reached: %@", _scanner.string];
-        }
-        
-        // we no longer need these objects
+		}
+
+		// we no longer need these objects
 		_variables = nil;
 		_scanner = nil;
 	}
@@ -545,7 +545,7 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 
 + (instancetype)valueWithFactor:(double)theValue unit:(NSString*)theUnit;
 {
-	MMMValue	*valueWithFactor = [MMMValue valueWithString:theUnit];
+	MMMValue        *valueWithFactor = [MMMValue valueWithString:theUnit];
 	[valueWithFactor mul:[MMMValue valueWithFactor:theValue]];
 	return valueWithFactor;
 }
