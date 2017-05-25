@@ -11,9 +11,11 @@
 #import "MMMUnits.h"
 
 // for our dynamic functions
-#undef OBJC_OLD_DISPATCH_PROTOTYPES
-#define OBJC_OLD_DISPATCH_PROTOTYPES 1
 #import <objc/objc-runtime.h>
+// explicity tying of object_msgSend() is required
+typedef MMMValue *(*objc_msgSendTyped7Objects)(id, SEL, MMMValue *, MMMValue *, MMMValue *, MMMValue *, MMMValue *, MMMValue *, MMMValue *);
+typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
+
 
 @interface MMMValue ()
 @property (getter=isUsed) BOOL used;    // flag to avoid recursion
@@ -29,15 +31,16 @@
     NSScanner		*_scanner;
 }
 
-/*********************************************************************************************************/
+// ####################################################################################
+#pragma mark -
 #pragma mark units
 
-- (void)setUnits:(NSMutableDictionary<NSString *, NSNumber *> *)theUnits
+- (void)setUnits:(NSDictionary<NSString *, NSNumber *> *)theUnits
 {
-    if(theUnits != nil)
-        _units = [NSMutableDictionary dictionaryWithDictionary:theUnits];
-    else
-        _units = [NSMutableDictionary dictionary];
+    // Forcing units to be an empty dictionary simplifies the -equalUnits:
+    // further down, because nil is equal to an empty dictionary (no unit)
+    if(!theUnits) theUnits = [@{} mutableCopy];
+    _units = [theUnits mutableCopy];
 }
 
 /// Remove all units which have a power of 0, because they are no longer necessary
@@ -69,11 +72,11 @@
 	[self.units removeAllObjects];
 }
 
-/*********************************************************************************************************/
+// ####################################################################################
+#pragma mark -
+#pragma mark simple value initializer
 
-#pragma mark init
-
-- (instancetype)initWithFactor:(double)theFactor units:(NSDictionary*)theUnits
+- (instancetype)initWithFactor:(double)theFactor units:(NSDictionary<NSString *, NSNumber *>*)theUnits
 {
 	if(self = [self init])
 	{
@@ -109,8 +112,8 @@
 }
 
 
-/*********************************************************************************************************/
-
+// ####################################################################################
+#pragma mark -
 #pragma mark error handling
 
 - (void)setError:(NSString*)theErrorMessage
@@ -132,9 +135,9 @@
 		return nil;
 	NSString	*sstr = _scanner.string;
 	if(sstr)
-		return [NSString stringWithFormat:@"%@ at position %lu: %@", _error, (unsigned long)_errorLocation, [sstr substringFromIndex:_errorLocation]];
+		return [NSString stringWithFormat:@"%@ at position %lu: %@", _error, _errorLocation, [sstr substringFromIndex:_errorLocation]];
 	else
-		return [NSString stringWithFormat:@"%@", _error];
+		return _error;
 }
 
 - (void)mergeError:(MMMValue*)theValue
@@ -145,8 +148,8 @@
 	_errorLocation = theValue->_errorLocation;
 }
 
-/*********************************************************************************************************/
-
+// ####################################################################################
+#pragma mark -
 #pragma mark return values
 
 /// return the value with the wanted unit (if set) merged together
@@ -236,8 +239,7 @@
 	return theResponse;
 }
 
-/*********************************************************************************************************/
-
+// ####################################################################################
 - (MMMValue*)_calcVar
 {
 	// start with a default value: 1.0 without a unit
@@ -251,7 +253,7 @@
 		theValue = [self _calcTerm];
 		if(![_scanner scanString:@")" intoString:nil])
 		{
-			self.error = [NSString stringWithFormat:@"Error: ')' missing"];
+			self.error = @"Error: ')' missing";
 		}
 		foundValue = YES;
 
@@ -261,7 +263,7 @@
 		theValue = [self _calcTerm];
 		if(![_scanner scanString:@"]" intoString:nil])
 		{
-			self.error = [NSString stringWithFormat:@"Error: ']' missing"];
+            self.error = @"Error: ']' missing";
 		}
 		[theValue removeUnits];
 		foundValue = YES;
@@ -342,13 +344,13 @@
 						SEL	selector = NSSelectorFromString([NSString stringWithFormat:@"%@%@", theString, theParameterStr]);
 						if(selector && [self respondsToSelector:selector])
 						{
-							theValue = objc_msgSend(v[0], selector, v[1], v[2], v[3], v[4], v[5], v[6], v[7]);
+							theValue = ((objc_msgSendTyped7Objects)objc_msgSend)(v[0], selector, v[1], v[2], v[3], v[4], v[5], v[6], v[7]);
 						} else {
 							// search for a function that accepts an NSArray
 							SEL	selector = NSSelectorFromString([NSString stringWithFormat:@"%@_A:", theString]);
 							if(selector && [self respondsToSelector:selector])
 							{
-								theValue = objc_msgSend(v[0], selector, av);
+								theValue = ((objc_msgSendTypedNSArray)objc_msgSend)(v[0], selector, av);
 							} else {
 								self.error = [NSString stringWithFormat:@"Function %@() not found", theString];
 							}
@@ -402,7 +404,7 @@
 	}
 	if(!foundValue)
 	{
-		self.error = [NSString stringWithFormat:@"Expected a value and/or a unit"];
+		self.error = @"Expected a value and/or a unit";
 	}
 	return theValue;
 }
@@ -415,6 +417,7 @@
 		foundNegativeSign = YES;
 	} else if([_scanner scanString:@"+" intoString:nil])
 	{
+        // just ignore the '+'
 	}
 	MMMValue	*theValue = [self _calcVar];
 	if(foundNegativeSign)
@@ -500,14 +503,13 @@
 		_requestedUnit = theUnit;
 
 		MMMValue	*theValue = [self _calcTerm];
-		//NSLog(@">>> %d : '%@'", [_scanner scanLocation], [[_scanner string] substringFromIndex:[_scanner scanLocation]]);
 		if(theValue != nil)
 		{
 			self.doubleValue = theValue.doubleValue;
 			self.units = theValue.units;
 			[self mergeError:theValue];
 		} else {
-			self.error = [NSString stringWithFormat:@"NIL returned"];
+			self.error = @"NIL returned";
 		}
 
 		if(!_scanner.atEnd)
@@ -521,6 +523,10 @@
 	}
 	return self;
 }
+
+// ####################################################################################
+#pragma mark -
+#pragma mark class methods to construct the value
 
 + (instancetype)valueWithString:(NSString*)theTerm
 {

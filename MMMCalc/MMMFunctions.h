@@ -7,7 +7,7 @@
  *
  */
 
-@interface MMMValue (PrivateFunctions)
+@interface MMMValue (InternalFunctions)
 
 // value = value + n
 - (MMMValue*)add:(MMMValue*)theValue;

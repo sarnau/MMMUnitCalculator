@@ -12,10 +12,9 @@
 
 #define ALLOW_ADD_UNIT_PLUS_NO_UNITS		0    // This allows adding/subtracting a value without a unit from a unit with a value
 
-@implementation MMMValue (PrivateFunctions)
+@implementation MMMValue (InternalFunctions)
 
-/*********************************************************************************************************/
-
+// ####################################################################################
 /// value = value + n
 - (MMMValue*)add:(MMMValue*)theValue
 {
@@ -131,8 +130,7 @@
 	return self;
 }
 
-/*********************************************************************************************************/
-
+// ####################################################################################
 /// value = sin(value)
 - (MMMValue*)sin
 {
@@ -425,21 +423,16 @@
 		return theValue;
 }
 
-/*********************************************************************************************************/
-
+// ####################################################################################
 /// compare two values for equal, returns 0, if not equal, 1 if equal
 - (MMMValue*)compareEqual:(MMMValue*)theValue
 {
-	double	ret = 0.0;
-	if([self equalUnits:theValue] && self.doubleValue == theValue.doubleValue)
-		ret = 1.0;
-	self.doubleValue = ret;
+    self.doubleValue = [self equalUnits:theValue] && self.doubleValue == theValue.doubleValue;
 	[self removeUnits];
 	return self;
 }
 
-/*********************************************************************************************************/
-
+// ####################################################################################
 /// Weight Watcher Points (TM and Patented)
 /// P = Calories / 50kcal + Fat / 12g - MIN(Fiber,4g) / 5g
 - (MMMValue*)wwp:(MMMValue*)theFat :(MMMValue*)theDietaryFiberGrams
@@ -450,7 +443,7 @@
 	return [theValue ceil];
 }
 
-/*********************************************************************************************************/
+// ####################################################################################
 #pragma mark -
 #pragma mark NSArray functions
 
