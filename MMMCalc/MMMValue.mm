@@ -322,26 +322,30 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 					// search if we have a function (can not be followed by a unit!)
 					if([_scanner scanString:@"(" intoString:nil])
 					{
-						MMMValue        *v[8];// up to 8 parameters are allowed
+                        MMMValue        *v[8];// up to 8 parameters are allowed
 						NSMutableArray<MMMValue *>      *av = [NSMutableArray array];
-						NSInteger vCount = 0;
-						memset(v, 0, sizeof(v));
-						NSMutableString *theParameterStr = [NSMutableString string];
+                        NSInteger vCount = 0;
+                        memset(v, 0, sizeof(v));
+                        NSMutableString *theParameterStr = [NSMutableString string];
 						while(![_scanner scanString:@")" intoString:nil])
 						{
 							MMMValue        *vv = [self _calcTerm];
-							if(vCount < sizeof(v)/sizeof(v[0]))
-							{
-								if(vCount > 0)
-									[av addObject:vv];
-								v[vCount++] = vv;
-							}
+                            if(!vv) {
+                                self.error = @"NIL returned";
+                                return self;
+                            }
+                            if(vCount < sizeof(v)/sizeof(v[0]))
+                            {
+                                if(vCount > 0)
+                                    [av addObject:vv];
+                                v[vCount++] = vv;
+                            }
 							[_scanner scanString:@"," intoString:nil];
-							if(vCount > 1)
-								[theParameterStr appendString:@":"];    // append a ':' for every parameter, but the first (which is self)
+                            if(vCount > 1)
+                                [theParameterStr appendString:@":"];    // append a ':' for every parameter, but the first (which is self)
 						}
 						// try to find the function in our class
-						SEL selector = NSSelectorFromString([NSString stringWithFormat:@"%@%@", theString, theParameterStr]);
+                        SEL selector = NSSelectorFromString([NSString stringWithFormat:@"%@%@", theString, theParameterStr]);
 						if(selector && [self respondsToSelector:selector])
 						{
 							theValue = ((objc_msgSendTyped7Objects)objc_msgSend)(v[0], selector, v[1], v[2], v[3], v[4], v[5], v[6], v[7]);
