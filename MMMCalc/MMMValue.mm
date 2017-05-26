@@ -420,8 +420,10 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 		// just ignore the '+'
 	}
 	MMMValue        *theValue = [self _calcVar];
-	if(foundNegativeSign)
-		theValue = [[MMMValue valueWithFactor:0.0] sub:theValue];
+    if(foundNegativeSign) {
+        // transfer the units to allow the subtraction from 0
+		theValue = [[MMMValue valueWithFactor:0.0 units:theValue.units] sub:theValue];
+    }
 	return theValue;
 }
 

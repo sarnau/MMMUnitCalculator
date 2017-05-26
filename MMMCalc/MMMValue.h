@@ -22,20 +22,20 @@
 + (instancetype)valueWithString:(NSString*)theTerm variables:(NSDictionary<NSString *, MMMValue *> *)theVariables requestedUnit:(NSString*)theUnit;
 
 
-// the full value with the unit normalized and converted into the optional requested unit
+/// the full value with the unit normalized and converted into the optional requested unit
 @property (readonly,nonatomic) MMMValue *value;
 
 /// factor of the value
 @property (readonly,nonatomic) double factor;
 
 /// the unit string
-@property (strong,readonly,nonatomic) NSString *unit;
+@property (readonly,nonatomic) NSString *unit;
 
-/// Full value plus unit string
-@property (strong,readonly,nonatomic) NSString *description;
+/// Full value plus unit string separated by a space
+@property (readonly,nonatomic) NSString *description;
 
 
 /// returns nil, if no error occurred
-@property (strong,nonatomic) NSString *error;
+@property (nonatomic) NSString *error;
 
 @end

@@ -116,11 +116,13 @@
 		[self removeUnits];
 		return self;
 	}
-
-	if(floor(power) != power && floor(1.0 / power) != (1.0 / power))
-	{
-		self.error = [NSString stringWithFormat:@"Error: power %g is not an integer", theValue.doubleValue];
-	}
+    
+    // we only allow integer powers to avoid non-integer units. That is theoretically possible, but not common.
+    if(floor(power) != power && floor(1.0 / power) != (1.0 / power))
+    {
+        self.error = [NSString stringWithFormat:@"Error: power %g is not an integer", theValue.doubleValue];
+        return self;
+    }
 	self.doubleValue = pow(self.doubleValue, power);
 
 	for(NSString *key in self.units)

@@ -42,6 +42,25 @@
 - (void)testMathOperations {
     XCTAssertEqualObjects([self testCalcValue:@"unknownfunction(0)" unit:nil variables:nil], @"Function unknownfunction() not found");
     
+    XCTAssertEqualObjects([self testCalcValue:@"1+2" unit:nil variables:nil], @"3");
+    XCTAssertEqualObjects([self testCalcValue:@"-1+2" unit:nil variables:nil], @"1");
+    XCTAssertEqualObjects([self testCalcValue:@"-1+1" unit:nil variables:nil], @"0");
+    XCTAssertEqualObjects([self testCalcValue:@"1-2" unit:nil variables:nil], @"-1");
+    XCTAssertEqualObjects([self testCalcValue:@"1.25-1.25" unit:nil variables:nil], @"0");
+    
+    XCTAssertEqualObjects([self testCalcValue:@"2m*2" unit:nil variables:nil], @"4 m");
+    XCTAssertEqualObjects([self testCalcValue:@"2s*2.5s" unit:nil variables:nil], @"5 s^2");
+    XCTAssertEqualObjects([self testCalcValue:@"2s*-2.5m" unit:nil variables:nil], @"-5 s*m");
+    
+    XCTAssertEqualObjects([self testCalcValue:@"6/2" unit:nil variables:nil], @"3");
+    XCTAssertEqualObjects([self testCalcValue:@"6/-2" unit:nil variables:nil], @"-3");
+    XCTAssertEqualObjects([self testCalcValue:@"1/0" unit:nil variables:nil], @"Division by zero");
+    
+    XCTAssertEqualObjects([self testCalcValue:@"pow(2,0)" unit:nil variables:nil], @"1");
+    XCTAssertEqualObjects([self testCalcValue:@"pow(2,2)" unit:nil variables:nil], @"4");
+    XCTAssertEqualObjects([self testCalcValue:@"pow(2,-2)" unit:nil variables:nil], @"0.25");
+    XCTAssertEqualObjects([self testCalcValue:@"pow(2,2.5)" unit:nil variables:nil], @"Error: power 2.5 is not an integer");
+    
     XCTAssertEqualObjects([self testCalcValue:@"asin(0)" unit:nil variables:nil], @"0");
     XCTAssertEqualObjects([self testCalcValue:@"acos(0)" unit:nil variables:nil], @"1.5708");
     XCTAssertEqualObjects([self testCalcValue:@"atan(0)" unit:nil variables:nil], @"0");
@@ -63,16 +82,20 @@
     XCTAssertEqualObjects([self testCalcValue:@"cosh(0)" unit:nil variables:nil], @"1");
     XCTAssertEqualObjects([self testCalcValue:@"tanh(0)" unit:nil variables:nil], @"0");
     
+    XCTAssertEqualObjects([self testCalcValue:@"ln(-1)" unit:nil variables:nil], @"ln <= 0 not allowed");
     XCTAssertEqualObjects([self testCalcValue:@"ln(1)" unit:nil variables:nil], @"0");
     XCTAssertEqualObjects([self testCalcValue:@"ln(constE)" unit:nil variables:nil], @"1");
+    XCTAssertEqualObjects([self testCalcValue:@"log(-1)" unit:nil variables:nil], @"log <= 0 not allowed");
     XCTAssertEqualObjects([self testCalcValue:@"log(1)" unit:nil variables:nil], @"0");
     XCTAssertEqualObjects([self testCalcValue:@"log(10)" unit:nil variables:nil], @"1");
+    XCTAssertEqualObjects([self testCalcValue:@"log2(-1)" unit:nil variables:nil], @"log2 <= 0 not allowed");
     XCTAssertEqualObjects([self testCalcValue:@"log2(1)" unit:nil variables:nil], @"0");
     XCTAssertEqualObjects([self testCalcValue:@"log2(2)" unit:nil variables:nil], @"1");
+    XCTAssertEqualObjects([self testCalcValue:@"exp(-1)" unit:nil variables:nil], @"0.367879");
     XCTAssertEqualObjects([self testCalcValue:@"exp(0)" unit:nil variables:nil], @"1");
     XCTAssertEqualObjects([self testCalcValue:@"exp(1)=constE" unit:nil variables:nil], @"1");
 
-    XCTAssertEqualObjects([self testCalcValue:@"abs(-(1+1))" unit:nil variables:nil], @"2");
+    XCTAssertEqualObjects([self testCalcValue:@"abs(-(1m+1m))" unit:nil variables:nil], @"2 m");
     XCTAssertEqualObjects([self testCalcValue:@"-((1+1))=-2" unit:nil variables:nil], @"1");
     XCTAssertEqualObjects([self testCalcValue:@"-((1+1))" unit:nil variables:nil], @"-2");
     
