@@ -63,6 +63,12 @@
     XCTAssertEqualObjects(val42unit.unit, @"m");
     XCTAssertEqualObjects(@(val42unit.factor), @(42));
     XCTAssertEqualObjects(val42unit.description, @"42 m");
+    
+    MMMValue *valSimpleUnit = [MMMValue valueWithString:@"2 m*m*m*m"];
+    XCTAssertEqualObjects(valSimpleUnit.unit, @"m^4");
+    XCTAssertEqualObjects(@(valSimpleUnit.factor), @(2));
+    XCTAssertEqualObjects(valSimpleUnit.description, @"2 m^4");
+    
 }
 
 - (void)testArrayOperations {
