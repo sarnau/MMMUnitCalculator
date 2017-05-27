@@ -25,11 +25,51 @@
 	return _sharedUnits;
 }
 
+- (instancetype)initWithString:(NSString *)unitDataString
+{
+    if(!unitDataString)
+        return nil;
+    if(self = [super init])
+    {
+        _parseError = @"";
+        _units = [NSMutableDictionary dictionary];
+        _prefix = [NSMutableDictionary dictionary];
+        _unitCharactersetBitmap = [[NSMutableData alloc] initWithLength:8192];
+        [self parseUnitFile:unitDataString];
+        _unitCharacterset = [NSCharacterSet characterSetWithBitmapRepresentation:_unitCharactersetBitmap];
+        _unitCharactersetBitmap = nil;    // we no longer need this data object
+    }
+    return self;
+}
+
+- (instancetype)initWithURL:(NSURL *)unitURL
+{
+    NSError *error;
+    NSString *fileData = [NSString stringWithContentsOfURL:unitURL encoding:NSUTF8StringEncoding error:&error];
+    if(!fileData)
+        return nil;
+    self = [self initWithString:fileData];
+    return self;
+}
+
+- (instancetype)init
+{
+    NSURL    *url = [NSBundle.mainBundle URLForResource:@"units" withExtension:@"dat"];
+    if(!url)
+        return nil;
+    self = [self initWithURL:url];
+    return self;
+}
+
+#pragma mark -
+
 - (void)parseUnit:(NSString*)theUnitString
 {
 	NSRange range = [theUnitString rangeOfCharacterFromSet:NSCharacterSet.whitespaceCharacterSet];
-	if(range.length == 0)
-		return;
+    if(range.length == 0) {
+        _parseError = [NSString stringWithFormat:@"unit without definition: %@",theUnitString];
+        return;
+    }
 
 	NSString        *unitKey = [theUnitString substringWithRange:NSMakeRange(0, range.location)];
 	NSString        *param = [theUnitString substringWithRange:NSMakeRange(range.location, theUnitString.length - range.location)];
@@ -41,7 +81,6 @@
 		unichar uc = [unitKey characterAtIndex:i];
 		if(uc != '>' && uc != '-')      // this is a special character for formulas and prefixes
 		{
-			//NSLog(@"%x = %c", uc, uc);
 			unsigned char   *bitmapRep = (unsigned char*)_unitCharactersetBitmap.mutableBytes;
 			bitmapRep[uc >> 3] |= (((unsigned int)1) << (uc &  7));
 		}
@@ -54,14 +93,14 @@
 		unitKey = [unitKey substringWithRange:NSMakeRange(0, unitKey.length - 1)];
 		if(_prefix[unitKey])
 		{
-			NSLog(@"duplicate prefix %@",unitKey);
+			_parseError = [NSString stringWithFormat:@"duplicate prefix %@",unitKey];
 		} else {
 			_prefix[unitKey] = param;
 		}
 	} else {    // otherwise it is a regular unit
 		if(_units[unitKey])
 		{
-			NSLog(@"duplicate unit %@",unitKey);
+            _parseError = [NSString stringWithFormat:@"duplicate unit %@",unitKey];
 		} else {
 			_units[unitKey] = param;
 		}
@@ -160,27 +199,6 @@
 - (NSString*)findUnit:(NSString*)theUnit
 {
 	return [self findUnit:theUnit withPrefix:YES];
-}
-
-- (instancetype)init
-{
-	if(self = [super init])
-	{
-		_units = [NSMutableDictionary dictionary];
-		_prefix = [NSMutableDictionary dictionary];
-		_unitCharactersetBitmap = [[NSMutableData alloc] initWithLength:8192];
-
-		// We have to load the units somehow. In our case we store them in the bundle of the application
-		NSURL    *url = [NSBundle.mainBundle URLForResource:@"units" withExtension:@"dat"];
-		if(!url) return nil;
-		NSError        *error;
-		NSString *fileData = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:&error];
-		if(!fileData) return nil;
-		[self parseUnitFile:fileData];
-		_unitCharacterset = [NSCharacterSet characterSetWithBitmapRepresentation:_unitCharactersetBitmap];
-		_unitCharactersetBitmap = nil;    // we no longer need this data object
-	}
-	return self;
 }
 
 @end

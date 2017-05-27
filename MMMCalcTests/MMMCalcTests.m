@@ -32,6 +32,22 @@
     return mv.error ?: mv.description;
 }
 
+- (void)testUnitParsing {
+    XCTAssertFalse([[MMMUnits alloc] initWithURL:nil]);
+    XCTAssertFalse([[MMMUnits alloc] initWithString:nil]);
+    XCTAssertTrue([[MMMUnits alloc] init]);
+    XCTAssertTrue([MMMUnits sharedUnits]);
+    MMMUnits *units = [[MMMUnits alloc] initWithString:@"a-\n"];
+    XCTAssertEqualObjects(units.parseError, @"unit without definition: a-");
+    MMMUnits *unitsB = [[MMMUnits alloc] initWithString:@"a 1\na 1\n"];
+    XCTAssertEqualObjects(unitsB.parseError, @"duplicate unit a");
+    MMMUnits *unitsC = [[MMMUnits alloc] initWithString:@"a- 1\na- 1\n"];
+    XCTAssertEqualObjects(unitsC.parseError, @"duplicate prefix a");
+    // check if continue a line works:
+    MMMUnits *unitsD = [[MMMUnits alloc] initWithString:@"a- \\\n1"];
+    XCTAssertEqualObjects(unitsD.parseError, @"");
+}
+
 - (void)testValues {
     MMMValue *val0 = [MMMValue value];
     XCTAssertEqualObjects(val0.unit, @"");
