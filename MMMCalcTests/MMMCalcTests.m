@@ -32,6 +32,23 @@
     return mv.error ?: mv.description;
 }
 
+- (void)testValues {
+    MMMValue *val0 = [MMMValue value];
+    XCTAssertEqualObjects(val0.unit, @"");
+    XCTAssertEqualObjects(@(val0.factor), @(0));
+    XCTAssertEqualObjects(val0.description, @"0");
+    
+    MMMValue *val42 = [MMMValue valueWithFactor:42];
+    XCTAssertEqualObjects(val42.unit, @"");
+    XCTAssertEqualObjects(@(val42.factor), @(42));
+    XCTAssertEqualObjects(val42.description, @"42");
+    
+    MMMValue *val42unit = [MMMValue valueWithFactor:42 unit:@"m"];
+    XCTAssertEqualObjects(val42unit.unit, @"m");
+    XCTAssertEqualObjects(@(val42unit.factor), @(42));
+    XCTAssertEqualObjects(val42unit.description, @"42 m");
+}
+
 - (void)testArrayOperations {
     XCTAssertEqualObjects([self testCalcValue:@"sum(1,2,3,4)" unit:nil variables:nil], @"10");
     XCTAssertEqualObjects([self testCalcValue:@"avg(1,2,3,4)" unit:nil variables:nil], @"2.5");
@@ -40,6 +57,8 @@
 }
 
 - (void)testMathOperations {
+    XCTAssertEqualObjects([self testCalcValue:@"*" unit:nil variables:nil], @"Expected a value and/or a unit");
+    XCTAssertEqualObjects([self testCalcValue:@"1@" unit:nil variables:nil], @"Error: end expected, but not reached: 1@");
     XCTAssertEqualObjects([self testCalcValue:@"unknownfunction(0)" unit:nil variables:nil], @"Function unknownfunction() not found");
     
     XCTAssertEqualObjects([self testCalcValue:@"1+2" unit:nil variables:nil], @"3");
@@ -47,6 +66,8 @@
     XCTAssertEqualObjects([self testCalcValue:@"-1+1" unit:nil variables:nil], @"0");
     XCTAssertEqualObjects([self testCalcValue:@"1-2" unit:nil variables:nil], @"-1");
     XCTAssertEqualObjects([self testCalcValue:@"1.25-1.25" unit:nil variables:nil], @"0");
+    XCTAssertEqualObjects([self testCalcValue:@"1m+2s" unit:nil variables:nil], @"Term '1 m' and '2 s' can't be added");
+    XCTAssertEqualObjects([self testCalcValue:@"1m-2s" unit:nil variables:nil], @"Term '1 m' and '2 s' can't be subtracted");
     
     XCTAssertEqualObjects([self testCalcValue:@"2m*2" unit:nil variables:nil], @"4 m");
     XCTAssertEqualObjects([self testCalcValue:@"2s*2.5s" unit:nil variables:nil], @"5 s^2");
@@ -56,14 +77,24 @@
     XCTAssertEqualObjects([self testCalcValue:@"6/-2" unit:nil variables:nil], @"-3");
     XCTAssertEqualObjects([self testCalcValue:@"1/0" unit:nil variables:nil], @"Division by zero");
     
+    XCTAssertEqualObjects([self testCalcValue:@"pow(2,1m)" unit:nil variables:nil], @"Error: power '1 m' can not have a unit");
     XCTAssertEqualObjects([self testCalcValue:@"pow(2,0)" unit:nil variables:nil], @"1");
     XCTAssertEqualObjects([self testCalcValue:@"pow(2,2)" unit:nil variables:nil], @"4");
     XCTAssertEqualObjects([self testCalcValue:@"pow(2,-2)" unit:nil variables:nil], @"0.25");
     XCTAssertEqualObjects([self testCalcValue:@"pow(2,2.5)" unit:nil variables:nil], @"Error: power 2.5 is not an integer");
     
+    XCTAssertEqualObjects([self testCalcValue:@"sin(0m)" unit:nil variables:nil], @"Error: sin '0 m' can not have a unit");
+    XCTAssertEqualObjects([self testCalcValue:@"cos(0m)" unit:nil variables:nil], @"Error: cos '0 m' can not have a unit");
+    XCTAssertEqualObjects([self testCalcValue:@"tan(0m)" unit:nil variables:nil], @"Error: tan '0 m' can not have a unit");
+    XCTAssertEqualObjects([self testCalcValue:@"asin(0m)" unit:nil variables:nil], @"Error: asin '0 m' can not have a unit");
+    XCTAssertEqualObjects([self testCalcValue:@"acos(0m)" unit:nil variables:nil], @"Error: acos '0 m' can not have a unit");
+    XCTAssertEqualObjects([self testCalcValue:@"atan(0m)" unit:nil variables:nil], @"Error: atan '0 m' can not have a unit");
+    
     XCTAssertEqualObjects([self testCalcValue:@"asin(0)" unit:nil variables:nil], @"0");
     XCTAssertEqualObjects([self testCalcValue:@"acos(0)" unit:nil variables:nil], @"1.5708");
     XCTAssertEqualObjects([self testCalcValue:@"atan(0)" unit:nil variables:nil], @"0");
+    XCTAssertEqualObjects([self testCalcValue:@"atan2(0m,0)" unit:nil variables:nil], @"Error: atan2 '0 m' can not have a unit");
+    XCTAssertEqualObjects([self testCalcValue:@"atan2(0,0m)" unit:nil variables:nil], @"Error: atan2 '0 m' can not have a unit");
     XCTAssertEqualObjects([self testCalcValue:@"atan2(0,0)" unit:nil variables:nil], @"0");
 
     XCTAssertEqualObjects([self testCalcValue:@"sin(0)" unit:nil variables:nil], @"0");
@@ -78,9 +109,23 @@
     XCTAssertEqualObjects([self testCalcValue:@"tan(PI/2)" unit:nil variables:nil], @"1.63312e+16");
     XCTAssertEqualObjects([self testCalcValue:@"tan(PI)" unit:nil variables:nil], @"-1.22465e-16");
     
+    XCTAssertEqualObjects([self testCalcValue:@"sinh(0m)" unit:nil variables:nil], @"Error: sinh '0 m' can not have a unit");
+    XCTAssertEqualObjects([self testCalcValue:@"cosh(0m)" unit:nil variables:nil], @"Error: cosh '0 m' can not have a unit");
+    XCTAssertEqualObjects([self testCalcValue:@"tanh(0m)" unit:nil variables:nil], @"Error: tanh '0 m' can not have a unit");
     XCTAssertEqualObjects([self testCalcValue:@"sinh(0)" unit:nil variables:nil], @"0");
     XCTAssertEqualObjects([self testCalcValue:@"cosh(0)" unit:nil variables:nil], @"1");
     XCTAssertEqualObjects([self testCalcValue:@"tanh(0)" unit:nil variables:nil], @"0");
+    
+    XCTAssertEqualObjects([self testCalcValue:@"asinh(0m)" unit:nil variables:nil], @"Error: asinh '0 m' can not have a unit");
+    XCTAssertEqualObjects([self testCalcValue:@"acosh(1m)" unit:nil variables:nil], @"Error: acosh '1 m' can not have a unit");
+    XCTAssertEqualObjects([self testCalcValue:@"atanh(0m)" unit:nil variables:nil], @"Error: atanh '0 m' can not have a unit");
+    XCTAssertEqualObjects([self testCalcValue:@"asinh(0)" unit:nil variables:nil], @"0");
+    XCTAssertEqualObjects([self testCalcValue:@"acosh(1)" unit:nil variables:nil], @"0");
+    XCTAssertEqualObjects([self testCalcValue:@"atanh(0)" unit:nil variables:nil], @"0");
+    
+    XCTAssertEqualObjects([self testCalcValue:@"ln(1m)" unit:nil variables:nil], @"Error: ln '1 m' can not have a unit");
+    XCTAssertEqualObjects([self testCalcValue:@"log(1m)" unit:nil variables:nil], @"Error: log '1 m' can not have a unit");
+    XCTAssertEqualObjects([self testCalcValue:@"log2(1m)" unit:nil variables:nil], @"Error: log2 '1 m' can not have a unit");
     
     XCTAssertEqualObjects([self testCalcValue:@"ln(-1)" unit:nil variables:nil], @"ln <= 0 not allowed");
     XCTAssertEqualObjects([self testCalcValue:@"ln(1)" unit:nil variables:nil], @"0");
@@ -91,10 +136,31 @@
     XCTAssertEqualObjects([self testCalcValue:@"log2(-1)" unit:nil variables:nil], @"log2 <= 0 not allowed");
     XCTAssertEqualObjects([self testCalcValue:@"log2(1)" unit:nil variables:nil], @"0");
     XCTAssertEqualObjects([self testCalcValue:@"log2(2)" unit:nil variables:nil], @"1");
+    XCTAssertEqualObjects([self testCalcValue:@"exp(0m)" unit:nil variables:nil], @"Error: exp '0 m' can not have a unit");
     XCTAssertEqualObjects([self testCalcValue:@"exp(-1)" unit:nil variables:nil], @"0.367879");
     XCTAssertEqualObjects([self testCalcValue:@"exp(0)" unit:nil variables:nil], @"1");
     XCTAssertEqualObjects([self testCalcValue:@"exp(1)=constE" unit:nil variables:nil], @"1");
-
+    
+    XCTAssertEqualObjects([self testCalcValue:@"floor(-1.5)" unit:nil variables:nil], @"-2");
+    XCTAssertEqualObjects([self testCalcValue:@"floor(-1)" unit:nil variables:nil], @"-1");
+    XCTAssertEqualObjects([self testCalcValue:@"floor(1)" unit:nil variables:nil], @"1");
+    XCTAssertEqualObjects([self testCalcValue:@"floor(1.5)" unit:nil variables:nil], @"1");
+    
+    XCTAssertEqualObjects([self testCalcValue:@"ceil(-1.5)" unit:nil variables:nil], @"-1");
+    XCTAssertEqualObjects([self testCalcValue:@"ceil(-1)" unit:nil variables:nil], @"-1");
+    XCTAssertEqualObjects([self testCalcValue:@"ceil(1)" unit:nil variables:nil], @"1");
+    XCTAssertEqualObjects([self testCalcValue:@"ceil(1.5)" unit:nil variables:nil], @"2");
+    
+    XCTAssertEqualObjects([self testCalcValue:@"round(-1.5)" unit:nil variables:nil], @"-2");
+    XCTAssertEqualObjects([self testCalcValue:@"round(-1)" unit:nil variables:nil], @"-1");
+    XCTAssertEqualObjects([self testCalcValue:@"round(1)" unit:nil variables:nil], @"1");
+    XCTAssertEqualObjects([self testCalcValue:@"round(1.5)" unit:nil variables:nil], @"2");
+    
+    XCTAssertEqualObjects([self testCalcValue:@"min(1m,2m)" unit:nil variables:nil], @"1 m");
+    XCTAssertEqualObjects([self testCalcValue:@"min(1m,2s)" unit:nil variables:nil], @"Term '1 m' and '2 s' can't be compared via min");
+    XCTAssertEqualObjects([self testCalcValue:@"max(1m,2m)" unit:nil variables:nil], @"2 m");
+    XCTAssertEqualObjects([self testCalcValue:@"max(1m,2s)" unit:nil variables:nil], @"Term '1 m' and '2 s' can't be compared via max");
+    
     XCTAssertEqualObjects([self testCalcValue:@"abs(-(1m+1m))" unit:nil variables:nil], @"2 m");
     XCTAssertEqualObjects([self testCalcValue:@"-((1+1))=-2" unit:nil variables:nil], @"1");
     XCTAssertEqualObjects([self testCalcValue:@"-((1+1))" unit:nil variables:nil], @"-2");
@@ -107,8 +173,11 @@
 }
 
 - (void)testUnits {
+    XCTAssertEqualObjects([self testCalcValue:@"1xxx" unit:nil variables:nil], @"Unit 'xxx' not fully defined");
     XCTAssertEqualObjects([self testCalcValue:@"1/(8 l/100km)" unit:@"mpg" variables:nil], @"29.4018 mpg");
+    XCTAssertEqualObjects([self testCalcValue:@"(1+" unit:nil variables:nil], @"Error: ')' missing");
     XCTAssertEqualObjects([self testCalcValue:@"[1m]" unit:nil variables:nil], @"1");
+    XCTAssertEqualObjects([self testCalcValue:@"[1m" unit:nil variables:nil], @"Error: ']' missing");
     
     XCTAssertEqualObjects([self testCalcValue:@"10 knot" unit:nil variables:nil], @"5.14444 m/s");
     

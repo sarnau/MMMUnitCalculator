@@ -29,7 +29,8 @@ static void     CalcValue(NSString *term, NSString *unit, NSDictionary<NSString 
 {
 	CalcValue(@"1/(8 l/100km)",@"mpg", nil);
 	CalcValue(@"1/(20*mpg)",@"l/100km", nil);
-
+    CalcValue(@"1/0",nil, nil);
+    
 	[NSApp terminate:self];
 }
 

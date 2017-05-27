@@ -27,7 +27,6 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 	NSDictionary<NSString *, MMMValue *> *_variables;
 	NSString        *_requestedUnit; // != nil => wanted unit
 	NSString        *_error;         // error message, if != nil
-	NSUInteger      _errorLocation;  // location in _scanner
 	NSScanner       *_scanner;
 }
 
@@ -116,36 +115,11 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 #pragma mark -
 #pragma mark error handling
 
-- (void)setError:(NSString*)theErrorMessage
-{
-	if(theErrorMessage == nil)
-	{
-		_error = nil;
-		return;
-	}
-	if(_error != nil)
-		return;
-	_error = theErrorMessage;
-	_errorLocation = _scanner.scanLocation;
-}
-
-- (NSString*)error
-{
-	if(_error == nil)
-		return nil;
-	NSString        *sstr = _scanner.string;
-	if(sstr)
-		return [NSString stringWithFormat:@"%@ at position %lu: %@", _error, _errorLocation, [sstr substringFromIndex:_errorLocation]];
-	else
-		return _error;
-}
-
 - (void)mergeError:(MMMValue*)theValue
 {
 	if(_error != nil || theValue == nil)
 		return;
 	_error = theValue->_error;
-	_errorLocation = theValue->_errorLocation;
 }
 
 // ####################################################################################
@@ -276,18 +250,16 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 			theValue = [MMMValue valueWithFactor:theNumber];
 			foundValue = YES;
 
-#if 0
 			// parsing hex numbers starting with $ bzw. $0x
-		} else if([_scanner scanString:@"$" intoString:nil])
-		{
-			unsigned long long theHexNumber;
-			if([_scanner scanHexLongLong:&theHexNumber])
-			{
-				theValue = [MMMValue valueWithFactor:theHexNumber];
-				foundValue = YES;
-			}
-#endif
-
+//        } else if([_scanner scanString:@"$" intoString:nil])
+//        {
+//            unsigned long long theHexNumber;
+//            if([_scanner scanHexLongLong:&theHexNumber])
+//            {
+//                theValue = [MMMValue valueWithFactor:theHexNumber];
+//                foundValue = YES;
+//            }
+            
 		} else {
 
 			// first scan for functions and parameters
@@ -330,10 +302,6 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 						while(![_scanner scanString:@")" intoString:nil])
 						{
 							MMMValue        *vv = [self _calcTerm];
-                            if(!vv) {
-                                self.error = @"NIL returned";
-                                return self;
-                            }
                             if(vCount < sizeof(v)/sizeof(v[0]))
                             {
                                 if(vCount > 0)
@@ -509,14 +477,9 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 		_requestedUnit = theUnit;
 
 		MMMValue        *theValue = [self _calcTerm];
-		if(theValue != nil)
-		{
-			self.doubleValue = theValue.doubleValue;
-			self.units = theValue.units;
-			[self mergeError:theValue];
-		} else {
-			self.error = @"NIL returned";
-		}
+        self.doubleValue = theValue.doubleValue;
+        self.units = theValue.units;
+        [self mergeError:theValue];
 
 		if(!_scanner.atEnd)
 		{

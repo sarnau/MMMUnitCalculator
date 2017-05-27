@@ -287,7 +287,7 @@
 	}
 	if(val2.hasUnits)
 	{
-		val2.error = [NSString stringWithFormat:@"Error: atan2 '%@' can not have a unit", val2];
+		self.error = [NSString stringWithFormat:@"Error: atan2 '%@' can not have a unit", val2];
 		return self;
 	}
 	self.doubleValue = atan2(self.doubleValue, val2.doubleValue);
