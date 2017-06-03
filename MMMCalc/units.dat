@@ -4,20 +4,20 @@
 #
 
 ###################################################################################################
-= SI base units <http://www.bipm.fr/en/si/base_units/>
+= SI base units <http://www.bipm.org/en/measurement-units/>
 
 # They are all marked with an '@' to inform the parser that we can't resolve any further
 
-m						@			# Length (Meter)
-kg						@			# Mass (Kilogram)
-s						@			# Time (Seconds)
-A						@			# Electrical current (Ampere)
-K						@			# Temperature (Kelvin)
-mol						@			# Amount of substance (Mole)
-cd						@			# Luminous intensity (Candela)
+m						@			# Length (Meter) - The metre is the length of the path travelled by light in vacuum during a time interval of 1/299 792 458 of a second.
+kg						@			# Mass (Kilogram) - The kilogram is the unit of mass; it is equal to the mass of the international prototype of the kilogram.
+s						@			# Time (Seconds) - The second is the duration of 9 192 631 770 periods of the radiation corresponding to the transition between the two hyperfine levels of the ground state of the caesium 133 atom.
+A						@			# Electrical current (Ampere) - The ampere is that constant current which, if maintained in two straight parallel conductors of infinite length, of negligible circular cross-section, and placed 1 m apart in vacuum, would produce between these conductors a force equal to 2 x 10–7 newton per metre of length.
+K						@			# Temperature (Kelvin) - The kelvin, unit of thermodynamic temperature, is the fraction 1/273.16 of the thermodynamic temperature of the triple point of water.
+mol						@			# Amount of substance (Mole) - The mole is the amount of substance of a system which contains as many elementary entities as there are atoms in 0.012 kilogram of carbon.
+cd						@			# Luminous intensity (Candela) - The candela is the luminous intensity, in a given direction, of a source that emits monochromatic radiation of frequency 540 x 1012 hertz and that has a radiant intensity in that direction of 1/683 watt per steradian.
 
 ###################################################################################################
-= standard SI prefix names <http://www.bipm.fr/en/si/prefixes.html>
+= standard SI prefix names <http://www.bipm.org/en/measurement-units/>
 
 # Prefixes are just multipliers for the factor
 
@@ -28,7 +28,7 @@ peta-					1e15
 tera-					1e12
 giga-					1e9
 mega-					1e6
-myria-					1e4
+#myria-					1e4        # no longer listed in the SI document
 kilo-					1e3
 hecto-					1e2
 deca-					1e1
@@ -71,7 +71,7 @@ y-						yocto
 
 
 ###################################################################################################
-= named SI derived units <http://www.bipm.fr/en/si/derived_units/>
+= named SI derived units <http://www.bipm.org/en/measurement-units/>
 
 # C and F are commented out, because they typically collide with Celius and Fahrenheit. If they are needed, change the temperature units!
 
