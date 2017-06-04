@@ -216,7 +216,9 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 // ####################################################################################
 - (MMMValue*)_calcVar
 {
-	// start with a default value: 1.0 without a unit
+	// start with a default value: 1.0 without a unit. This allows a unit without a number. I am aware of this, but
+    // there are many cases where a unit is a complex term, which needs to be implicitly multiplied by the value.
+    // By assuming it is 1, if there is none, it solves issues around this.
 	MMMValue        *theValue = [MMMValue valueWithFactor:1.0];
 	BOOL foundValue = NO;                   // we should keep track if we actually found a value and/or a unit, otherwise => error
 	// this avoids () being accepted as 1.0
