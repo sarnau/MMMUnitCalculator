@@ -28,6 +28,7 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 	NSString        *_requestedUnit; // != nil => wanted unit
 	NSString        *_error;         // error message, if != nil
 	NSScanner       *_scanner;
+    MMMUnits        *_unitInfo;
 }
 
 // ####################################################################################
@@ -140,7 +141,7 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 	NSMutableString    *theConvertUnitStr = [theValue normalizedUnitString];
 	[theConvertUnitStr appendString:@">"];
 	[theConvertUnitStr appendString:_requestedUnit];
-	NSString    *theConvertUnitTerm = [MMMUnits.sharedUnits findUnit:theConvertUnitStr];
+	NSString    *theConvertUnitTerm = [_unitInfo findUnit:theConvertUnitStr];
 	if(theConvertUnitTerm != nil)
 	{
 		// call that one! This is for a F=>C, etc. conversion, where a simple multiplication does not work
@@ -344,13 +345,13 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 
 	// we scan with the units character set, instead of NSCharacterSet.letterCharacterSet, to get all legal unit characters
 	// (like degrees, micro, etc)
-	while([_scanner scanCharactersFromSet:MMMUnits.sharedUnits.unitCharacterset intoString:&theString])
+	while([_scanner scanCharactersFromSet:_unitInfo.unitCharacterset intoString:&theString])
 	{
 		foundValue = YES;
 
 		// expect units
 		MMMValue        *theUnitValue = nil;
-		NSString        *theUnit = [MMMUnits.sharedUnits findUnit:theString];
+		NSString        *theUnit = [_unitInfo findUnit:theString];
 		if(theUnit == nil)
 		{
 			self.error = [NSString stringWithFormat:@"Unit '%@' not fully defined", theString];
@@ -468,7 +469,7 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 	return [self _calcCompare];
 }
 
-- (instancetype)initWithString:(NSString*)theTerm variables:(NSDictionary<NSString *, MMMValue *> *)theVariables requestedUnit:(NSString*)theUnit
+- (instancetype)initWithString:(NSString*)theTerm variables:(NSDictionary<NSString *, MMMValue *> *)theVariables requestedUnit:(NSString*)theUnit unitInfo:(MMMUnits *)unitInfo
 {
 	if(self = [super init])
 	{
@@ -477,6 +478,7 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 
 		_variables = theVariables;
 		_requestedUnit = theUnit;
+        _unitInfo = unitInfo ?: MMMUnits.sharedUnits;    // default to the units.dat file
 
 		MMMValue        *theValue = [self _calcTerm];
         self.doubleValue = theValue.doubleValue;
@@ -501,17 +503,22 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 
 + (instancetype)valueWithString:(NSString*)theTerm
 {
-	return [[MMMValue alloc] initWithString:theTerm variables:nil requestedUnit:nil];
+	return [[MMMValue alloc] initWithString:theTerm variables:nil requestedUnit:nil unitInfo:nil];
 }
 
 + (instancetype)valueWithString:(NSString*)theTerm variables:(NSDictionary<NSString *, MMMValue *>*)theVariables
 {
-	return [[MMMValue alloc] initWithString:theTerm variables:theVariables requestedUnit:nil];
+	return [[MMMValue alloc] initWithString:theTerm variables:theVariables requestedUnit:nil unitInfo:nil];
 }
 
 + (instancetype)valueWithString:(NSString*)theTerm variables:(NSDictionary<NSString *, MMMValue *>*)theVariables requestedUnit:(NSString*)theUnit
 {
-	return [[MMMValue alloc] initWithString:theTerm variables:theVariables requestedUnit:theUnit];
+	return [[MMMValue alloc] initWithString:theTerm variables:theVariables requestedUnit:theUnit unitInfo:nil];
+}
+
++ (nullable instancetype)valueWithString:(nonnull NSString*)theTerm variables:(nullable NSDictionary<NSString *, MMMValue *> *)theVariables requestedUnit:(nullable NSString*)theUnit unitInfo:(nullable MMMUnits *)unitInfo
+{
+    return [[MMMValue alloc] initWithString:theTerm variables:theVariables requestedUnit:theUnit unitInfo:unitInfo];
 }
 
 + (instancetype)valueWithFactor:(double)theValue unit:(NSString*)theUnit;

@@ -1,6 +1,6 @@
 # MMMUnitCalculator
 
-An piece of code I wrote in 2006, which allows you to do mathematical calculations with units from Objective-C. I've updated the code to Objective-C with properties and generics.
+An piece of code I wrote in 2006, which allows you to do mathematical calculations with units from Objective-C. I've updated the code to Objective-C with properties and generics. It is not depended on macOS and should work fine on iOS as well.
 
 By default the result will be in SI compatible units, but all units and prefixes (like kg or ms) can be freely defined in a configuration file [units.dat](MMMCalc/units.dat). You can also force a specific unit and add variables to the term. It is also trivial to add new functions, even functions which accept a list of values.
 
@@ -18,4 +18,4 @@ A few examples:
     0 C + 0 C requestedUnit: C => 273.15 C   ---  internally temperatures are converted to Kelvin
 ```
 
-The project is an Xcode project with a simple NSLog in the app delegate for testing. It also has a bunch of unit tests to make sure the math works.
+The project is an Xcode project with a simple NSLog in the app delegate for testing. It also has a bunch of unit tests to make sure the math works out in all cases.
