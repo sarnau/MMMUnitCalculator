@@ -141,6 +141,7 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 	NSMutableString    *theConvertUnitStr = [theValue normalizedUnitString];
 	[theConvertUnitStr appendString:@">"];
 	[theConvertUnitStr appendString:_requestedUnit];
+    NSAssert(_unitInfo, @"_unitInfo not set");
 	NSString    *theConvertUnitTerm = [_unitInfo findUnit:theConvertUnitStr];
 	if(theConvertUnitTerm != nil)
 	{
@@ -345,7 +346,8 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 
 	// we scan with the units character set, instead of NSCharacterSet.letterCharacterSet, to get all legal unit characters
 	// (like degrees, micro, etc)
-	while([_scanner scanCharactersFromSet:_unitInfo.unitCharacterset intoString:&theString])
+    NSAssert(_unitInfo, @"_unitInfo not set");
+    while([_scanner scanCharactersFromSet:_unitInfo.unitCharacterset intoString:&theString])
 	{
 		foundValue = YES;
 
@@ -479,7 +481,8 @@ typedef MMMValue *(*objc_msgSendTypedNSArray)(id, SEL, NSArray<MMMValue *> *);
 		_variables = theVariables;
 		_requestedUnit = theUnit;
         _unitInfo = unitInfo ?: MMMUnits.sharedUnits;    // default to the units.dat file
-
+        NSAssert(_unitInfo, @"_unitInfo not set");
+        
 		MMMValue        *theValue = [self _calcTerm];
         self.doubleValue = theValue.doubleValue;
         self.units = theValue.units;
